@@ -59,6 +59,7 @@ export type UserConfigExport = UserConfig | Promise<UserConfig> | UserConfigFn
  * accepts a direct {@link UserConfig} object, or a function that returns it.
  * The function receives a {@link ConfigEnv} object that exposes two properties:
  * `command` (either `'build'` or `'serve'`), and `mode`.
+ * 相当于定义了一个泛型，具体的类型可以是object|function|promise,见 vite.config.js
  */
 export function defineConfig(config: UserConfigExport): UserConfigExport {
   return config
@@ -257,6 +258,7 @@ export interface ResolveWorkerOptions {
   rollupOptions: RollupOptions
 }
 
+// 这里可以发现常见的几个类型定义 UserConfig InlineConfig
 export interface InlineConfig extends UserConfig {
   configFile?: string | false
   envFile?: false
@@ -325,6 +327,8 @@ export async function resolveConfig(
   }
 
   let { configFile } = config
+
+  // 这里看起来是拓展自定义配置，
   if (configFile !== false) {
     const loadResult = await loadConfigFromFile(
       configEnv,
@@ -660,6 +664,7 @@ export function sortUserPlugins(
   return [prePlugins, normalPlugins, postPlugins]
 }
 
+// 返回值是一个promise，进一步约束类型
 export async function loadConfigFromFile(
   configEnv: ConfigEnv,
   configFile?: string,

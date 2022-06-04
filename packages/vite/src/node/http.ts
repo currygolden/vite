@@ -41,7 +41,7 @@ export interface CommonServerOptions {
    * Uses [`http-proxy`](https://github.com/http-party/node-http-proxy).
    * Full options [here](https://github.com/http-party/node-http-proxy#options).
    *
-   * Example `vite.config.js`:
+   * Example `vite.config.js`: 在注释里写例子
    * ``` js
    * module.exports = {
    *   proxy: {

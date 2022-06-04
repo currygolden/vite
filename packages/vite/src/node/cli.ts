@@ -1,11 +1,16 @@
+// node 端性能检测包
 import { performance } from 'perf_hooks'
+// cli工具包 对标commander
 import { cac } from 'cac'
+// terminal 颜色工具
 import colors from 'picocolors'
 import type { BuildOptions } from './build'
 import type { ServerOptions } from './server'
 import type { LogLevel } from './logger'
+// 公共的日志类
 import { createLogger } from './logger'
 import { VERSION } from './constants'
+// 指代index
 import { resolveConfig } from '.'
 
 const cli = cac('vite')
@@ -30,6 +35,7 @@ interface GlobalCLIOptions {
 
 /**
  * removing global flags before passing as command specific sub-configs
+ * omit 排除部分类型
  */
 function cleanOptions<Options extends GlobalCLIOptions>(
   options: Options
@@ -50,9 +56,11 @@ function cleanOptions<Options extends GlobalCLIOptions>(
   delete ret.mode
   return ret
 }
-
+// 解析 vite 命令行参数，全局都可用，后面还特地区分了dev/build
 cli
+  // vite.config.js 来源
   .option('-c, --config <file>', `[string] use specified config file`)
+  // 服务器的根路径
   .option('--base <path>', `[string] public base path (default: /)`)
   .option('-l, --logLevel <level>', `[string] info | warn | error | silent`)
   .option('--clearScreen', `[boolean] allow/disable clear screen when logging`)
@@ -62,6 +70,7 @@ cli
 
 // dev
 cli
+  // 默认参数当作服务器的根目录
   .command('[root]', 'start dev server') // default command
   .alias('serve') // the command is called 'serve' in Vite's API
   .alias('dev') // alias to align with the script name
@@ -78,7 +87,9 @@ cli
   .action(async (root: string, options: ServerOptions & GlobalCLIOptions) => {
     // output structure is preserved even after bundling so require()
     // is ok here
+    // dev 过程的指令交给server处理，说明vite 是一个开发服务器
     const { createServer } = await import('./server')
+    // 多个await 放到一个 try catch
     try {
       const server = await createServer({
         root,
@@ -107,7 +118,7 @@ cli
             )} ms`
           )
         : ''
-
+      // 从启动脚本到服务器准备好监听状态的时间
       info(
         `\n  ${colors.green(
           `${colors.bold('VITE')} v${VERSION}`

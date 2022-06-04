@@ -279,9 +279,8 @@ export function injectQuery(url: string, queryToInject: string): string {
     pathname = pathname.slice(1)
   }
   pathname = decodeURIComponent(pathname)
-  return `${pathname}?${queryToInject}${search ? `&` + search.slice(1) : ''}${
-    hash ?? ''
-  }`
+  const res = `${pathname}?${queryToInject}${search ? `&` + search.slice(1) : ''}hash`
+  return res
 }
 
 const timestampRE = /\bt=\d{13}&?\b/
@@ -359,6 +358,7 @@ interface LookupFileOptions {
   rootDir?: string
 }
 
+// 在某个目录下寻找特定后缀的文件
 export function lookupFile(
   dir: string,
   formats: string[],
@@ -367,10 +367,12 @@ export function lookupFile(
   for (const format of formats) {
     const fullPath = path.join(dir, format)
     if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+      // for 语句的return 是退出循环
       return options?.pathOnly ? fullPath : fs.readFileSync(fullPath, 'utf-8')
     }
   }
   const parentDir = path.dirname(dir)
+  // 递归查找的中断条件是找到根目录
   if (
     parentDir !== dir &&
     (!options?.rootDir || parentDir.startsWith(options?.rootDir))
@@ -864,6 +866,7 @@ export function emptyCssComments(raw: string): string {
   return raw.replace(multilineCommentsRE, (s) => ' '.repeat(s.length))
 }
 
+// 参数合并，不是基础的对象浅层或者深层合并
 function mergeConfigRecursively(
   defaults: Record<string, any>,
   overrides: Record<string, any>,
@@ -885,6 +888,7 @@ function mergeConfigRecursively(
 
     // fields that require special handling
     if (key === 'alias' && (rootPath === 'resolve' || rootPath === '')) {
+      // 合并alias的时候考虑对象和数组
       merged[key] = mergeAlias(existing, value)
       continue
     } else if (key === 'assetsInclude' && rootPath === '') {
